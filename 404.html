@@ -98,6 +98,18 @@
       transform: translateY(0);
     }
   }
+
+  @keyframes shake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    20% { transform: translate(-4px, 2px) rotate(-6deg); }
+    40% { transform: translate(4px, -2px) rotate(6deg); }
+    60% { transform: translate(-3px, -3px) rotate(-4deg); }
+    80% { transform: translate(3px, 3px) rotate(4deg); }
+  }
+
+  .letter.shaking {
+    animation: shake 0.2s infinite;
+  }
 </style>
 </head>
 <body>
@@ -117,11 +129,48 @@
       return `hsl(${hue}, ${sat}%, ${light}%)`;
     }
 
-    document.querySelectorAll('.letter').forEach((el) => {
+    const letters = document.querySelectorAll('.letter');
+
+    // Click a letter → it changes to a random color
+    letters.forEach((el) => {
       el.addEventListener('click', () => {
         el.style.color = randomColor();
       });
     });
+
+    // Press and hold a letter → it shakes while held
+    letters.forEach((el) => {
+      const startShake = () => el.classList.add('shaking');
+      const stopShake = () => el.classList.remove('shaking');
+
+      el.addEventListener('mousedown', startShake);
+      el.addEventListener('touchstart', startShake, { passive: true });
+      ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach((evt) => {
+        el.addEventListener(evt, stopShake);
+      });
+    });
+
+    // Type anywhere on the keyboard → a random letter changes color
+    document.addEventListener('keydown', () => {
+      const target = letters[Math.floor(Math.random() * letters.length)];
+      target.style.color = randomColor();
+    });
+
+    // Random footer message on every page load
+    const messages = [
+      'Not ready yet',
+      'Still cooking',
+      'Nice try though',
+      'Patience, young padawan',
+      'This page ghosted you',
+      'Coming... eventually',
+      'You found nothing. Congrats.',
+      'Plot twist: not here',
+      '404: page not emotionally ready',
+      'Try refreshing your expectations'
+    ];
+    document.querySelector('.footer').textContent =
+      messages[Math.floor(Math.random() * messages.length)];
   </script>
 
 </body>
