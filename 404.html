@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coral: #FF7F50;
+    --blue: #4169E1;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    background: #FFFFFF;
+    font-family: 'Space Grotesk', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .line {
+    font-weight: 700;
+    line-height: 0.95;
+    font-size: clamp(4rem, 18vw, 11rem);
+    letter-spacing: -0.02em;
+  }
+
+  .rnr {
+    color: var(--coral);
+  }
+
+  .num {
+    color: var(--blue);
+  }
+
+  .letter {
+    display: inline-block;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  .footer {
+    position: fixed;
+    bottom: clamp(1.5rem, 5vh, 3rem);
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1a1a1a;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .line {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: rise 0.6s ease-out forwards;
+    }
+    .rnr { animation-delay: 0.05s; }
+    .num { animation-delay: 0.2s; }
+    .footer {
+      opacity: 0;
+      animation: rise 0.6s ease-out forwards;
+      animation-delay: 0.4s;
+    }
+  }
+
+  @keyframes rise {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+</head>
+<body>
+
+  <div class="stack">
+    <div class="line rnr"><span class="letter">R</span><span class="letter">N</span><span class="letter">R</span></div>
+    <div class="line num"><span class="letter">4</span><span class="letter">0</span><span class="letter">4</span></div>
+  </div>
+
+  <div class="footer">Not ready yet</div>
+
+  <script>
+    function randomColor() {
+      const hue = Math.floor(Math.random() * 360);
+      const sat = 65 + Math.random() * 25;
+      const light = 45 + Math.random() * 15;
+      return `hsl(${hue}, ${sat}%, ${light}%)`;
+    }
+
+    document.querySelectorAll('.letter').forEach((el) => {
+      el.addEventListener('click', () => {
+        el.style.color = randomColor();
+      });
+    });
+  </script>
+
+</body>
+</html>
