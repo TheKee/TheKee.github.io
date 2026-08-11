@@ -1,176 +1,444 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>404</title>
+<title>CUT LOG — Macro Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --coral: #FF7F50;
-    --blue: #4169E1;
+  :root{
+    --bg:#121214;
+    --card:#1a1a1d;
+    --card2:#1f1f23;
+    --stroke:#2c2c30;
+    --bone:#eae6db;
+    --muted:#8f8b82;
+    --accent:#d97757;
+    --protein:#5b8c7b;
+    --fat:#b5533c;
+    --carb:#4d7ea8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--bone);
+    font-family:'Inter',sans-serif;
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 80px;
+  }
+  .wrap{width:100%;max-width:480px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    color:var(--accent);
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  h1{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:34px;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    margin:0 0 4px;
+    line-height:1.05;
+  }
+  .sub{
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:28px;
+    line-height:1.5;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--stroke);
+    border-radius:4px;
+    padding:20px;
+    margin-bottom:16px;
+  }
+  .card-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-bottom:14px;
+    display:flex;
+    justify-content:space-between;
+  }
+  .field{margin-bottom:16px;}
+  .field:last-child{margin-bottom:0;}
+  .field-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:6px;
+  }
+  label{
+    font-size:13px;
+    color:var(--bone);
+  }
+  .val{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--accent);
+  }
+  input[type="range"]{
+    width:100%;
+    -webkit-appearance:none;
+    height:2px;
+    background:var(--stroke);
+    outline:none;
+    margin-top:4px;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:14px;height:14px;
+    border-radius:50%;
+    background:var(--accent);
+    cursor:pointer;
+    border:2px solid var(--bg);
+  }
+  select, input[type="number"]{
+    width:100%;
+    background:var(--card2);
+    border:1px solid var(--stroke);
+    color:var(--bone);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    padding:9px 10px;
+    border-radius:3px;
+  }
+  .toggle-group{display:flex;gap:8px;}
+  .toggle-btn{
+    flex:1;
+    background:var(--card2);
+    border:1px solid var(--stroke);
+    color:var(--muted);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.05em;
+    padding:10px 4px;
+    border-radius:3px;
+    cursor:pointer;
+    text-align:center;
+    text-transform:uppercase;
+  }
+  .toggle-btn.active{
+    border-color:var(--accent);
+    color:var(--accent);
+    background:rgba(217,119,87,0.1);
   }
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  /* readout panel */
+  .readout{
+    background:var(--card);
+    border:1px solid var(--stroke);
+    border-radius:4px;
+    padding:22px 20px;
+    margin-bottom:16px;
+  }
+  .readout-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:9px 0;
+    border-bottom:1px solid var(--stroke);
+  }
+  .readout-row:last-child{border-bottom:none;}
+  .readout-label{
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+  }
+  .readout-num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;
+  }
+  .target-block{
+    text-align:center;
+    padding:18px 0 22px;
+    border-bottom:1px solid var(--stroke);
+    margin-bottom:6px;
+  }
+  .target-num{
+    font-family:'Oswald',sans-serif;
+    font-weight:700;
+    font-size:54px;
+    color:var(--accent);
+    line-height:1;
+    letter-spacing:0.01em;
+  }
+  .target-unit{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    margin-top:6px;
   }
 
-  html, body {
-    height: 100%;
+  /* macro plates */
+  .macro{margin-bottom:14px;}
+  .macro:last-child{margin-bottom:0;}
+  .macro-head{
+    display:flex;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    margin-bottom:6px;
+  }
+  .macro-name{text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
+  .macro-grams{color:var(--bone);}
+  .bar-track{
+    height:8px;
+    background:var(--card2);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    border-radius:4px;
+    transition:width 0.25s ease;
   }
 
-  body {
-    background: #FFFFFF;
-    font-family: 'Space Grotesk', sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+  .note{
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.6;
+    padding:14px 16px;
+    background:var(--card2);
+    border-left:2px solid var(--accent);
+    border-radius:2px;
   }
-
-  .stack {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .line {
-    font-weight: 700;
-    line-height: 0.95;
-    font-size: clamp(4rem, 18vw, 11rem);
-    letter-spacing: -0.02em;
-  }
-
-  .rnr {
-    color: var(--coral);
-  }
-
-  .num {
-    color: var(--blue);
-  }
-
-  .letter {
-    display: inline-block;
-    cursor: pointer;
-    transition: color 0.15s ease;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-user-select: none;
-    user-select: none;
-    outline: none;
-  }
-
-  .footer {
-    position: fixed;
-    bottom: clamp(1.5rem, 5vh, 3rem);
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #1a1a1a;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .line {
-      opacity: 0;
-      transform: translateY(12px);
-      animation: rise 0.6s ease-out forwards;
-    }
-    .rnr { animation-delay: 0.05s; }
-    .num { animation-delay: 0.2s; }
-    .footer {
-      opacity: 0;
-      animation: rise 0.6s ease-out forwards;
-      animation-delay: 0.4s;
-    }
-  }
-
-  @keyframes rise {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes shake {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    20% { transform: translate(-4px, 2px) rotate(-6deg); }
-    40% { transform: translate(4px, -2px) rotate(6deg); }
-    60% { transform: translate(-3px, -3px) rotate(-4deg); }
-    80% { transform: translate(3px, 3px) rotate(4deg); }
-  }
-
-  .letter.shaking {
-    animation: shake 0.2s infinite;
-  }
+  .note b{color:var(--bone);}
 </style>
 </head>
 <body>
+<div class="wrap">
+  <div class="eyebrow">Cut Log · 001</div>
+  <h1>Macro Calculator</h1>
+  <div class="sub">คำนวณ BMR / TDEE / มาโครจากน้ำหนักปัจจุบัน — ปรับตัวเลขทุกครั้งที่น้ำหนักเปลี่ยน</div>
 
-  <div class="stack">
-    <div class="line rnr"><span class="letter">R</span><span class="letter">N</span><span class="letter">R</span></div>
-    <div class="line num"><span class="letter">4</span><span class="letter">0</span><span class="letter">4</span></div>
+  <div class="card">
+    <div class="card-label"><span>Body Stats</span><span id="bmiTag"></span></div>
+
+    <div class="field">
+      <div class="field-row"><label>น้ำหนักปัจจุบัน</label><span class="val" id="wVal">80 kg</span></div>
+      <input type="range" id="weight" min="45" max="120" step="0.5" value="80">
+    </div>
+
+    <div class="field">
+      <div class="field-row"><label>ส่วนสูง</label><span class="val" id="hVal">173 cm</span></div>
+      <input type="range" id="height" min="150" max="200" step="1" value="173">
+    </div>
+
+    <div class="field">
+      <div class="field-row"><label>อายุ</label><span class="val" id="aVal">20 ปี</span></div>
+      <input type="range" id="age" min="15" max="60" step="1" value="20">
+    </div>
+
+    <div class="field">
+      <label>เพศ</label>
+      <div class="toggle-group" style="margin-top:6px;">
+        <div class="toggle-btn active" data-gender="m">ชาย</div>
+        <div class="toggle-btn" data-gender="f">หญิง</div>
+      </div>
+    </div>
   </div>
 
-  <div class="footer">Not ready yet</div>
+  <div class="card">
+    <div class="card-label"><span>Activity & Deficit</span></div>
 
-  <script>
-    function randomColor() {
-      const hue = Math.floor(Math.random() * 360);
-      const sat = 65 + Math.random() * 25;
-      const light = 45 + Math.random() * 15;
-      return `hsl(${hue}, ${sat}%, ${light}%)`;
-    }
+    <div class="field" id="watchField">
+      <div class="field-row"><label>Active Energy วันนี้</label><span class="val" id="aeVal">400 kcal</span></div>
+      <input type="range" id="activeEnergy" min="0" max="1200" step="10" value="400">
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;">
+        ดูได้จากแอป Fitness → วงแหวนสีแดง "Move" หรือ Health app → Summary → Active Energy<br>
+        ถ้ายังไม่จบวัน กรอกตัวเลข ณ ตอนนี้ไปก่อน แล้วเข้ามาเช็คใหม่ตอนเย็น
+      </div>
+    </div>
 
-    const letters = document.querySelectorAll('.letter');
+    <div class="field">
+      <div class="field-row"><label>Deficit ต่อวัน</label><span class="val" id="dVal">500 kcal</span></div>
+      <input type="range" id="deficit" min="200" max="750" step="50" value="500">
+    </div>
 
-    // Click a letter → it changes to a random color
-    letters.forEach((el) => {
-      el.addEventListener('click', () => {
-        el.style.color = randomColor();
-      });
+    <div class="field">
+      <label>โหมดคาร์บวันนี้</label>
+      <div class="toggle-group" style="margin-top:6px;">
+        <div class="toggle-btn active" data-carb="20">Fast Day · 20g</div>
+        <div class="toggle-btn" data-carb="60">ปกติ · 60g</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="target-block">
+      <div class="target-num" id="targetCal">2000</div>
+      <div class="target-unit">kcal / วัน — เป้าหมาย</div>
+    </div>
+    <div class="readout-row">
+      <span class="readout-label">Resting Energy (BMR)</span>
+      <span class="readout-num" id="bmrOut">— kcal</span>
+    </div>
+    <div class="readout-row">
+      <span class="readout-label">พลังงานที่ใช้วันนี้</span>
+      <span class="readout-num" id="tdeeOut">— kcal</span>
+    </div>
+    <div class="readout-row">
+      <span class="readout-label">ลดไขมันโดยประมาณ</span>
+      <span class="readout-num" id="lossOut">— kg/สัปดาห์</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label"><span>Macro Split</span></div>
+    <div class="macro">
+      <div class="macro-head"><span class="macro-name">Protein</span><span class="macro-grams" id="pOut">0g</span></div>
+      <div class="bar-track"><div class="bar-fill" id="pBar" style="background:var(--protein);width:0%;"></div></div>
+    </div>
+    <div class="macro">
+      <div class="macro-head"><span class="macro-name">Fat</span><span class="macro-grams" id="fOut">0g</span></div>
+      <div class="bar-track"><div class="bar-fill" id="fBar" style="background:var(--fat);width:0%;"></div></div>
+    </div>
+    <div class="macro">
+      <div class="macro-head"><span class="macro-name">Carb</span><span class="macro-grams" id="cOut">0g</span></div>
+      <div class="bar-track"><div class="bar-fill" id="cBar" style="background:var(--carb);width:0%;"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let gender = 'm';
+  let carbTarget = 20;
+
+  $('activeEnergy').addEventListener('input', calc);
+
+  document.querySelectorAll('[data-gender]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('[data-gender]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      gender = btn.dataset.gender;
+      calc();
     });
+  });
 
-    // Press and hold a letter → it shakes while held
-    letters.forEach((el) => {
-      const startShake = () => el.classList.add('shaking');
-      const stopShake = () => el.classList.remove('shaking');
-
-      el.addEventListener('mousedown', startShake);
-      el.addEventListener('touchstart', startShake, { passive: true });
-      ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach((evt) => {
-        el.addEventListener(evt, stopShake);
-      });
+  document.querySelectorAll('[data-carb]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('[data-carb]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      carbTarget = parseFloat(btn.dataset.carb);
+      calc();
     });
+  });
 
-    // Type anywhere on the keyboard → a random letter changes color
-    document.addEventListener('keydown', () => {
-      const target = letters[Math.floor(Math.random() * letters.length)];
-      target.style.color = randomColor();
-    });
+  ['weight','height','age','deficit'].forEach(id=>{
+    $(id).addEventListener('input', calc);
+  });
 
-    // Random footer message on every page load
-    const messages = [
-      'Not ready yet',
-      'Still cooking',
-      'Nice try though',
-      'This page ghosted you',
-      'Coming... eventually',
-      'You found nothing. Congrats.',
-      'Plot twist: not here',
-      '404: page not found',
-      'Try refreshing your expectations'
-    ];
-    document.querySelector('.footer').textContent =
-      messages[Math.floor(Math.random() * messages.length)];
-  </script>
+  function loadState(){
+    try{
+      const raw = localStorage.getItem('cutlog-state');
+      if(!raw) return;
+      const s = JSON.parse(raw);
+      if(s.weight) $('weight').value = s.weight;
+      if(s.height) $('height').value = s.height;
+      if(s.age) $('age').value = s.age;
+      if(s.deficit) $('deficit').value = s.deficit;
+      if(s.gender){
+        gender = s.gender;
+        document.querySelectorAll('[data-gender]').forEach(b=>{
+          b.classList.toggle('active', b.dataset.gender === gender);
+        });
+      }
+      if(s.carbTarget){
+        carbTarget = s.carbTarget;
+        document.querySelectorAll('[data-carb]').forEach(b=>{
+          b.classList.toggle('active', parseFloat(b.dataset.carb) === carbTarget);
+        });
+      }
+    }catch(e){}
+  }
 
+  function saveState(){
+    try{
+      localStorage.setItem('cutlog-state', JSON.stringify({
+        weight: $('weight').value,
+        height: $('height').value,
+        age: $('age').value,
+        deficit: $('deficit').value,
+        gender: gender,
+        carbTarget: carbTarget
+      }));
+    }catch(e){}
+  }
+
+  function calc(){
+    const w = parseFloat($('weight').value);
+    const h = parseFloat($('height').value);
+    const a = parseFloat($('age').value);
+    const def = parseFloat($('deficit').value);
+
+    $('wVal').textContent = w + ' kg';
+    $('hVal').textContent = h + ' cm';
+    $('aVal').textContent = a + ' ปี';
+    $('dVal').textContent = def + ' kcal';
+
+    // Mifflin-St Jeor — this is the Resting Energy baseline either way
+    const bmr = gender === 'm'
+      ? (10*w + 6.25*h - 5*a + 5)
+      : (10*w + 6.25*h - 5*a - 161);
+
+    const activeEnergy = parseFloat($('activeEnergy').value);
+    $('aeVal').textContent = activeEnergy + ' kcal';
+    // Resting Energy (BMR) + Active Energy measured by the watch,
+    // plus ~10% for digestion/NEAT not captured by either number
+    const tdee = (bmr + activeEnergy) * 1.1;
+    const target = Math.max(tdee - def, bmr * 1.0); // never suggest below BMR
+
+    const bmi = w / Math.pow(h/100, 2);
+    let bmiLabel = 'ปกติ';
+    if(bmi < 18.5) bmiLabel = 'ต่ำกว่าเกณฑ์';
+    else if(bmi >= 25) bmiLabel = 'เกินเกณฑ์';
+    $('bmiTag').textContent = 'BMI ' + bmi.toFixed(1) + ' · ' + bmiLabel;
+
+    $('bmrOut').textContent = Math.round(bmr) + ' kcal';
+    $('tdeeOut').textContent = Math.round(tdee) + ' kcal';
+    $('targetCal').textContent = Math.round(target);
+
+    const weeklyLossKg = (def*7)/7700;
+    $('lossOut').textContent = weeklyLossKg.toFixed(2) + ' kg/สัปดาห์';
+
+    // macros
+    const proteinG = w * 2.1;
+    const carbG = carbTarget;
+    const proteinKcal = proteinG*4;
+    const carbKcal = carbG*4;
+    let fatKcal = target - proteinKcal - carbKcal;
+    if(fatKcal < 0) fatKcal = 0;
+    const fatG = fatKcal/9;
+
+    $('pOut').textContent = Math.round(proteinG) + 'g';
+    $('cOut').textContent = Math.round(carbG) + 'g';
+    $('fOut').textContent = Math.round(fatG) + 'g';
+
+    const totalKcal = proteinKcal + carbKcal + fatKcal;
+    $('pBar').style.width = (proteinKcal/totalKcal*100) + '%';
+    $('cBar').style.width = (carbKcal/totalKcal*100) + '%';
+    $('fBar').style.width = (fatKcal/totalKcal*100) + '%';
+
+    saveState();
+  }
+
+  loadState();
+  calc();
+</script>
 </body>
 </html>
