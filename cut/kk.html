@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cut Log — for KK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#e4e1d8; --shell:#f1efe9;
+    --lcd:#b8bfb0; --lcd-ink:#23271f;
+    --ink:#23221d; --graphite:#75726a;
+    --hairline:#cbc8bf; --accent:#d97757;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:'Archivo',system-ui,sans-serif;
+    display:flex;justify-content:center;
+    padding:26px 14px 60px;-webkit-font-smoothing:antialiased;
+  }
+  .device{
+    width:100%;max-width:430px;background:var(--shell);border-radius:14px;
+    padding:20px 18px 22px;
+    box-shadow:0 1px 0 #fdfcf9 inset,0 2px 3px rgba(45,42,35,.06),0 12px 28px rgba(45,42,35,.09);
+  }
+
+  .plate{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid var(--hairline);}
+  .mark{font-size:15px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;}
+  .mark span{color:var(--accent);}
+  .model{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--graphite);margin-top:3px;}
+
+  .langswitch{width:74px;}
+  .lang-labels{display:grid;grid-template-columns:repeat(2,1fr);margin-bottom:6px;}
+  .lang-labels button{background:none;border:0;padding:1px 0;cursor:pointer;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--graphite);opacity:.5;transition:opacity .2s,color .2s;}
+  .lang-labels button.on{color:var(--accent);opacity:1;}
+  .lang-labels button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px;}
+  .lang-rail{position:relative;height:4px;border-radius:2px;background:#d3d0c6;box-shadow:inset 0 1px 2px rgba(45,42,35,.3),inset 0 -1px 0 rgba(255,255,255,.55);}
+  .lang-knob{position:absolute;top:50%;left:25%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--accent);border:1px solid #b8603f;box-shadow:0 1px 2px rgba(45,42,35,.32);transition:left .26s cubic-bezier(.4,1.35,.5,1);}
+
+  .lcd{position:relative;margin:16px 0 20px;background:var(--lcd);border-radius:5px;padding:20px 16px 14px;box-shadow:0 2px 5px rgba(40,46,36,.22) inset,0 -1px 0 rgba(255,255,255,.25) inset;}
+  .lcd-tag{position:absolute;top:8px;left:16px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.2em;color:rgba(35,39,31,.45);text-transform:uppercase;}
+  .digits{text-align:right;font-family:'Space Mono',monospace;font-weight:700;font-size:54px;line-height:1;color:var(--lcd-ink);margin-top:12px;}
+  .digits-unit{font-family:'Space Mono',monospace;font-size:12px;font-weight:400;letter-spacing:.14em;color:rgba(35,39,31,.55);margin-left:6px;}
+  .lcd-foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:13px;padding-top:10px;border-top:1px solid rgba(35,39,31,.16);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.06em;color:rgba(35,39,31,.58);}
+  .lcd-foot b{font-size:12px;color:var(--lcd-ink);font-weight:700;}
+
+  .alert{display:none;margin-bottom:18px;padding:11px 13px;border-left:3px solid var(--accent);background:rgba(217,119,87,.09);border-radius:0 3px 3px 0;font-size:12px;line-height:1.6;color:#8a4227;}
+  .alert.on{display:block;}
+
+  .frame{border:1px solid var(--hairline);border-radius:6px;padding:14px 14px 16px;margin-bottom:16px;box-shadow:0 1px 0 #fdfcf9 inset;}
+  .frame-head{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--graphite);margin-bottom:14px;display:flex;justify-content:space-between;align-items:baseline;}
+  .frame-head em{font-style:normal;color:var(--accent);letter-spacing:.1em;}
+  .subframe{border:1px solid var(--hairline);border-radius:5px;padding:12px 12px 14px;margin-bottom:12px;}
+  .subframe:last-child{margin-bottom:0;}
+  .subhead{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--graphite);margin-bottom:11px;}
+
+  .ctrl{margin-bottom:16px;}
+  .ctrl:last-child{margin-bottom:0;}
+  .ctrl-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .ctrl-name{font-size:13px;font-weight:500;}
+  .ctrl-read{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);}
+  .ctrl-hint{font-size:11px;line-height:1.55;color:var(--graphite);margin-top:8px;}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:25px;background:transparent;outline:none;margin:0;}
+  input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:3px;background:#d3d0c6;box-shadow:inset 0 1px 2px rgba(45,42,35,.3),inset 0 -1px 0 rgba(255,255,255,.5);}
+  input[type=range]::-moz-range-track{height:5px;border-radius:3px;background:#d3d0c6;box-shadow:inset 0 1px 2px rgba(45,42,35,.3);}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:25px;margin-top:-10px;border-radius:2px;border:1px solid #b8603f;background:linear-gradient(to bottom,transparent 46%,rgba(255,255,255,.6) 46%,rgba(255,255,255,.6) 54%,transparent 54%),var(--accent);box-shadow:0 1px 2px rgba(45,42,35,.3);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:13px;height:23px;border-radius:2px;border:1px solid #b8603f;background:linear-gradient(to bottom,transparent 46%,rgba(255,255,255,.6) 46%,rgba(255,255,255,.6) 54%,transparent 54%),var(--accent);box-shadow:0 1px 2px rgba(45,42,35,.3);cursor:pointer;}
+  input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:3px;}
+  .ticks{height:5px;margin:1px 7px 0;background-image:repeating-linear-gradient(90deg,var(--hairline) 0 1px,transparent 1px 10%);}
+
+  .knobs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .knob-cell{text-align:center;}
+  .knob-name{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--graphite);margin-bottom:3px;}
+  .knob-val{font-family:'Space Mono',monospace;font-size:17px;font-weight:700;color:var(--ink);line-height:1.1;}
+  .knob-kcal{font-family:'Space Mono',monospace;font-size:9px;color:var(--graphite);margin-bottom:8px;}
+  .knob{position:relative;width:62px;height:62px;margin:0 auto;border-radius:50%;
+    background:radial-gradient(circle at 50% 34%,#e79070,var(--accent) 62%);
+    border:1px solid #b8603f;
+    box-shadow:0 2px 4px rgba(45,42,35,.28),inset 0 -2px 5px rgba(120,50,28,.35),inset 0 2px 4px rgba(255,255,255,.35);
+    cursor:ew-resize;touch-action:none;}
+  .knob::after{content:'';position:absolute;inset:11px;border-radius:50%;box-shadow:inset 0 1px 2px rgba(120,50,28,.28);}
+  .knob-ptr{position:absolute;left:50%;top:6px;width:2px;height:16px;margin-left:-1px;background:#fff;border-radius:1px;transform-origin:50% 25px;box-shadow:0 0 2px rgba(120,50,28,.5);}
+  .knob:focus-visible{outline:2px solid var(--ink);outline-offset:3px;}
+  .knob-scale{margin-top:7px;height:4px;background-image:repeating-linear-gradient(90deg,var(--hairline) 0 1px,transparent 1px 20%);}
+  .knob-rate{font-family:'Space Mono',monospace;font-size:9px;color:var(--graphite);margin-top:5px;letter-spacing:.02em;}
+
+  .stat{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--hairline);}
+  .stat:last-of-type{border-bottom:none;}
+  .stat-k{font-size:12.5px;color:var(--ink);}
+  .stat-v{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);}
+  .stat-v.muted{color:var(--graphite);font-weight:400;}
+  .stat-big{padding:10px 0;}
+  .stat-big .stat-v{font-size:19px;}
+
+  .cheer{margin-top:12px;font-size:12px;line-height:1.6;color:var(--ink);padding:10px 12px;background:rgba(217,119,87,.09);border-left:3px solid var(--accent);border-radius:0 3px 3px 0;}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
+</style>
+</head>
+<body>
+<div class="device">
+
+  <div class="plate">
+    <div>
+      <div class="mark">Cut<span>.</span>Log</div>
+      <div class="model">FOR KK</div>
+    </div>
+    <div class="langswitch">
+      <div class="lang-labels">
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="th">TH</button>
+      </div>
+      <div class="lang-rail" aria-hidden="true"><span class="lang-knob" id="langKnob"></span></div>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="lcd">
+    <div class="lcd-tag" data-i18n="eatToday">กินวันนี้</div>
+    <div class="digits"><span id="kcalOut">0</span><span class="digits-unit">KCAL</span></div>
+    <div class="lcd-foot">
+      <span>BMR <b id="bmrOut">0</b></span>
+      <span id="modeOut">—</span>
+    </div>
+  </div>
+
+  <div class="alert" id="alert"></div>
+
+  <!-- 2 -->
+  <div class="frame">
+    <div class="frame-head">
+      <span data-i18n="macroHead">สารอาหารวันนี้</span>
+      <em id="macroSum">0 / 0 kcal</em>
+    </div>
+    <div class="knobs">
+      <div class="knob-cell">
+        <div class="knob-name" data-i18n="protein">โปรตีน</div>
+        <div class="knob-val" id="pVal">0 g</div>
+        <div class="knob-kcal" id="pKcal">0 kcal</div>
+        <div class="knob" id="pKnob" tabindex="0" role="slider" aria-label="Protein"><span class="knob-ptr" id="pPtr"></span></div>
+        <div class="knob-scale" aria-hidden="true"></div>
+        <div class="knob-rate" id="pRate">—</div>
+      </div>
+      <div class="knob-cell">
+        <div class="knob-name" data-i18n="fat">ไขมัน</div>
+        <div class="knob-val" id="fVal">0 g</div>
+        <div class="knob-kcal" id="fKcal">0 kcal</div>
+        <div class="knob" id="fKnob" tabindex="0" role="slider" aria-label="Fat"><span class="knob-ptr" id="fPtr"></span></div>
+        <div class="knob-scale" aria-hidden="true"></div>
+        <div class="knob-rate" id="fRate">—</div>
+      </div>
+      <div class="knob-cell">
+        <div class="knob-name" data-i18n="carbs">คาร์บ</div>
+        <div class="knob-val" id="cVal">0 g</div>
+        <div class="knob-kcal" id="cKcal">0 kcal</div>
+        <div class="knob" id="cKnob" tabindex="0" role="slider" aria-label="Carbs"><span class="knob-ptr" id="cPtr"></span></div>
+        <div class="knob-scale" aria-hidden="true"></div>
+        <div class="knob-rate" id="cRate">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="frame">
+    <div class="frame-head"><span data-i18n="planHead">แผนวันนี้</span></div>
+    <div class="ctrl">
+      <div class="ctrl-top"><span class="ctrl-name" data-i18n="planBurn">ตั้งใจเผาให้ได้</span><span class="ctrl-read" id="aeRead">400 kcal</span></div>
+      <input type="range" id="activeEnergy" min="0" max="1500" step="10" value="400">
+      <div class="ticks" aria-hidden="true"></div>
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-top"><span class="ctrl-name" data-i18n="weeklyGoal">ลดต่อสัปดาห์</span><span class="ctrl-read" id="tgRead">0.50 kg</span></div>
+      <input type="range" id="weeklyTarget" min="0" max="1" step="0.05" value="0.5">
+      <div class="ticks" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="frame">
+    <div class="frame-head"><span data-i18n="journeyHead">เส้นทางสู่หุ่นในฝัน</span></div>
+
+    <div class="subframe">
+      <div class="subhead" data-i18n="fixedHead">ค่าคงที่</div>
+      <div class="ctrl">
+        <div class="ctrl-top"><span class="ctrl-name" data-i18n="height">ส่วนสูง</span><span class="ctrl-read" id="hRead">173 cm</span></div>
+        <input type="range" id="height" min="140" max="205" step="1" value="173">
+        <div class="ticks" aria-hidden="true"></div>
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-top"><span class="ctrl-name" data-i18n="age">อายุ</span><span class="ctrl-read" id="aRead">20 ปี</span></div>
+        <input type="range" id="age" min="15" max="70" step="1" value="20">
+        <div class="ticks" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="subframe">
+      <div class="subhead" data-i18n="nowHead">ปัจจุบัน</div>
+      <div class="ctrl">
+        <div class="ctrl-top"><span class="ctrl-name" data-i18n="weightNow">น้ำหนักปัจจุบัน</span><span class="ctrl-read" id="wRead">80 kg</span></div>
+        <input type="range" id="weight" min="45" max="120" step="0.1" value="80">
+        <div class="ticks" aria-hidden="true"></div>
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-top"><span class="ctrl-name" data-i18n="bfNow">% ไขมันปัจจุบัน</span><span class="ctrl-read" id="bfRead">20.0 %</span></div>
+        <input type="range" id="bodyFat" min="5" max="45" step="0.1" value="20">
+        <div class="ticks" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="subframe">
+      <div class="subhead" data-i18n="goalHead">เป้าหมาย</div>
+      <div class="ctrl">
+        <div class="ctrl-top"><span class="ctrl-name" data-i18n="weightGoal">น้ำหนักเป้าหมาย</span><span class="ctrl-read" id="gwRead">72.0 kg</span></div>
+        <input type="range" id="targetWeight" min="45" max="120" step="0.5" value="72">
+        <div class="ticks" aria-hidden="true"></div>
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-top"><span class="ctrl-name" data-i18n="bfGoal">% ไขมันเป้าหมาย</span><span class="ctrl-read" id="tbfRead">12.0 %</span></div>
+        <input type="range" id="targetBF" min="5" max="30" step="0.5" value="12">
+        <div class="ticks" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div class="subframe">
+      <div class="subhead" data-i18n="gapHead">ห่างจากเป้าอีก</div>
+      <div class="stat stat-big"><span class="stat-k" data-i18n="weeksLeft">เหลืออีก</span><span class="stat-v" id="weeksOut">—</span></div>
+      <div class="stat"><span class="stat-k" data-i18n="kgLeft">น้ำหนักต่างอีก</span><span class="stat-v" id="kgGapOut">— kg</span></div>
+      <div class="stat"><span class="stat-k" data-i18n="fatLeft">% ไขมันต่างอีก</span><span class="stat-v" id="fatGapOut">— %</span></div>
+      <div class="cheer" id="cheer"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  let lang='th';
+
+  /* ---------- nutrition rules the app enforces on its own ----------
+     protein 1.8–3.1 g / kg LEAN mass  (Helms et al. range for a lean cut)
+     fat     0.6–1.5 g / kg BODY weight (floor protects hormones + A/D/E/K)
+     carbs   whatever calories remain, never below zero
+  ------------------------------------------------------------------ */
+  const P_LO=1.8,P_HI=3.1,P_DEF=2.4;
+  const F_LO=0.6,F_HI=1.5,F_DEF=0.85;
+  const KCAL_PER_KG_FAT=7700;
+
+  let macro={p:0,f:0,c:0};
+  let manual=false;
+
+  const I18N={
+    en:{
+      eatToday:'Eat today', macroHead:'Today\u2019s macros', protein:'Protein', fat:'Fat', carbs:'Carbs',
+      planHead:'Today\u2019s plan', planBurn:'Aiming to burn',
+      weeklyGoal:'Loss per week',
+      journeyHead:'Road to the physique', fixedHead:'Fixed', nowHead:'Now', goalHead:'Target', gapHead:'Gap to target',
+      height:'Height', age:'Age', yrs:'yrs',
+      weightNow:'Weight now', bfNow:'Body fat now',
+      bfGoal:'Target body fat', weightGoal:'Target weight',
+      weeksLeft:'Weeks to go', kgLeft:'Weight gap', fatLeft:'Body fat gap',
+      modeCut:d=>'\u2212'+d+' kcal/day', modeHold:'Holding steady',
+      tooLow:'This cuts too deep — protein plus minimum fat no longer fits. Ease the weekly goal or plan more training.',
+      underBmr:b=>'This puts you under your resting rate ('+b+' kcal). Don\u2019t stay below it long without medical supervision.',
+      lowBf:'Below 10% is a photo-peak zone, not a year-round setting.',
+      weeksVal:w=>w+' weeks', maintain:'Maintenance', reached:'Reached',
+      cheerHold:'Maintenance mode. Eating at your burn — this is how you keep it.',
+      cheerDone:'Target reached. Hold here, or start building.',
+      cheerGo:(k,w)=>k+' kg of fat left to shed, about '+w+' weeks at this pace. Keep stacking days.',
+      cheerClose:k=>'Almost there — '+k+' kg out. Hold the line.'
+    },
+    th:{
+      eatToday:'กินวันนี้', macroHead:'สารอาหารวันนี้', protein:'โปรตีน', fat:'ไขมัน', carbs:'คาร์บ',
+      planHead:'แผนวันนี้', planBurn:'ตั้งใจเผาให้ได้',
+      weeklyGoal:'ลดต่อสัปดาห์',
+      journeyHead:'เส้นทางสู่หุ่นในฝัน', fixedHead:'ค่าคงที่', nowHead:'ปัจจุบัน', goalHead:'เป้าหมาย', gapHead:'ห่างจากเป้าอีก',
+      height:'ส่วนสูง', age:'อายุ', yrs:'ปี',
+      weightNow:'น้ำหนักปัจจุบัน', bfNow:'% ไขมันปัจจุบัน',
+      bfGoal:'% ไขมันเป้าหมาย', weightGoal:'น้ำหนักเป้าหมาย',
+      weeksLeft:'เหลืออีก', kgLeft:'น้ำหนักต่างอีก', fatLeft:'% ไขมันต่างอีก',
+      modeCut:d=>'\u2212'+d+' kcal/วัน', modeHold:'รักษาน้ำหนัก',
+      tooLow:'เป้านี้กดลึกเกินไป โปรตีนบวกไขมันขั้นต่ำใส่ไม่ลงแล้ว ลดเป้าต่อสัปดาห์ หรือวางแผนออกกำลังกายเพิ่ม',
+      underBmr:b=>'อันนี้ทำให้กินต่ำกว่าค่าเผาผลาญพื้นฐาน ('+b+' kcal) ไม่ควรอยู่ต่ำกว่านี้นานๆ โดยไม่มีหมอดูแล',
+      lowBf:'ต่ำกว่า 10% คือโซนถ่ายรูปพีค ไม่ใช่สภาพที่อยู่ได้ทั้งปี',
+      weeksVal:w=>w+' สัปดาห์', maintain:'รักษาหุ่น', reached:'ถึงแล้ว',
+      cheerHold:'โหมดรักษาหุ่น กินเท่าที่เผา แบบนี้แหละที่ทำให้อยู่ได้นาน',
+      cheerDone:'ถึงเป้าแล้ว จะรักษาไว้ตรงนี้ หรือเริ่มสร้างต่อก็ได้',
+      cheerGo:(k,w)=>'เหลือไขมันต้องรีดอีก '+k+' กก. ประมาณ '+w+' สัปดาห์ที่จังหวะนี้ สะสมวันไปเรื่อยๆ',
+      cheerClose:k=>'ใกล้มากแล้ว เหลือ '+k+' กก. อย่าเพิ่งวางมือ'
+    }
+  };
+  const LANGS=['en','th'];
+  const t = k => I18N[lang][k];
+
+  function applyLang(){
+    document.documentElement.lang=lang;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const v=I18N[lang][el.dataset.i18n];
+      if(typeof v==='string') el.textContent=v;
+    });
+    document.querySelectorAll('[data-lang]').forEach(b=>b.classList.toggle('on',b.dataset.lang===lang));
+    $('langKnob').style.left=((LANGS.indexOf(lang)*2+1)/4*100)+'%';
+    calc();
+  }
+  document.querySelectorAll('[data-lang]').forEach(b=>{
+    b.addEventListener('click',()=>{lang=b.dataset.lang;applyLang();});
+  });
+
+  const SLIDERS=['weight','bodyFat','height','age','activeEnergy','weeklyTarget','targetBF','targetWeight'];
+  SLIDERS.forEach(id=>$(id).addEventListener('input',()=>{manual=false;calc();}));
+
+  function model(){
+    const w=+$('weight').value,h=+$('height').value,a=+$('age').value;
+    const bf=+$('bodyFat').value,ae=+$('activeEnergy').value;
+    const wk=+$('weeklyTarget').value;
+    const tbf=+$('targetBF').value;
+    const lean=w-w*bf/100;
+    const bmr=10*w+6.25*h-5*a+5;          // Mifflin-St Jeor
+    const tdee=(bmr+ae)*1.1;              // +10% thermic effect of food
+    const deficit=wk*KCAL_PER_KG_FAT/7;
+    return {w,h,a,bf,ae,wk,tbf,lean,bmr,tdee,deficit,target:tdee-deficit};
+  }
+  function bounds(m){return {pLo:P_LO*m.lean,pHi:P_HI*m.lean,fLo:F_LO*m.w,fHi:F_HI*m.w};}
+
+  function autoSplit(m){
+    const b=bounds(m);
+    let p=Math.min(Math.max(P_DEF*m.lean,b.pLo),b.pHi);
+    let f=Math.min(Math.max(F_DEF*m.w,b.fLo),b.fHi);
+    let c=(m.target-p*4-f*9)/4;
+    if(c<0){
+      f=(m.target-p*4)/9;
+      if(f<b.fLo){f=b.fLo;p=(m.target-f*9)/4;}
+      c=0;
+    }
+    return {p:Math.max(p,0),f:Math.max(f,0),c:Math.max(c,0)};
+  }
+  function rebalance(key,val,m){
+    const b=bounds(m);
+    let {p,f,c}={...macro};
+    if(key==='p') p=Math.min(Math.max(val,b.pLo),b.pHi);
+    if(key==='f') f=Math.min(Math.max(val,b.fLo),b.fHi);
+    if(key==='c') c=Math.max(val,0);
+    if(key==='c'){
+      f=(m.target-p*4-c*4)/9;
+      if(f<b.fLo){f=b.fLo;p=(m.target-f*9-c*4)/4;
+        if(p<b.pLo){p=b.pLo;c=(m.target-p*4-f*9)/4;}}
+      if(f>b.fHi){f=b.fHi;p=(m.target-f*9-c*4)/4;
+        if(p>b.pHi){p=b.pHi;c=(m.target-p*4-f*9)/4;}}
+    } else {
+      c=(m.target-p*4-f*9)/4;
+      if(c<0){
+        if(key==='p'){f=(m.target-p*4)/9;if(f<b.fLo){f=b.fLo;p=(m.target-f*9)/4;}}
+        else{p=(m.target-f*9)/4;if(p<b.pLo){p=b.pLo;f=(m.target-p*4)/9;}}
+        c=0;
+      }
+    }
+    return {p:Math.max(p,0),f:Math.max(f,0),c:Math.max(c,0)};
+  }
+  function knobRange(key,m){
+    const b=bounds(m);
+    if(key==='p') return [b.pLo,b.pHi];
+    if(key==='f') return [b.fLo,b.fHi];
+    return [0,Math.max((m.target-b.pLo*4-b.fLo*9)/4,0)];
+  }
+  function paintKnob(key,m){
+    const [lo,hi]=knobRange(key,m), v=macro[key];
+    const pct=hi>lo?Math.min(Math.max((v-lo)/(hi-lo),0),1):0;
+    $(key+'Ptr').style.transform='rotate('+(-135+270*pct)+'deg)';
+    $(key+'Val').textContent=Math.round(v)+' g';
+    $(key+'Kcal').textContent=Math.round(v*(key==='f'?9:4))+' kcal';
+    $(key+'Rate').textContent=(v/m.w).toFixed(2)+' g/kg';
+    const el=$(key+'Knob');
+    el.setAttribute('aria-valuemin',Math.round(lo));
+    el.setAttribute('aria-valuemax',Math.round(hi));
+    el.setAttribute('aria-valuenow',Math.round(v));
+  }
+  ['p','f','c'].forEach(key=>{
+    const el=$(key+'Knob');
+    let startX=0,startV=0,dragging=false;
+    el.addEventListener('pointerdown',e=>{
+      dragging=true;startX=e.clientX;startV=macro[key];
+      el.setPointerCapture(e.pointerId);e.preventDefault();
+    });
+    el.addEventListener('pointermove',e=>{
+      if(!dragging) return;
+      const m=model(),[lo,hi]=knobRange(key,m);
+      manual=true;
+      macro=rebalance(key,startV+((e.clientX-startX)/130)*(hi-lo),m);
+      render(m);
+    });
+    const stop=()=>{dragging=false;};
+    el.addEventListener('pointerup',stop);
+    el.addEventListener('pointercancel',stop);
+    el.addEventListener('keydown',e=>{
+      const m=model(),[lo,hi]=knobRange(key,m),step=(hi-lo)/40;
+      if(e.key==='ArrowRight'||e.key==='ArrowUp'){manual=true;macro=rebalance(key,macro[key]+step,m);render(m);e.preventDefault();}
+      if(e.key==='ArrowLeft'||e.key==='ArrowDown'){manual=true;macro=rebalance(key,macro[key]-step,m);render(m);e.preventDefault();}
+    });
+  });
+
+  function render(m){
+    $('wRead').textContent=m.w.toFixed(1)+' kg';
+    $('bfRead').textContent=m.bf.toFixed(1)+' %';
+    $('hRead').textContent=m.h+' cm';
+    $('aRead').textContent=m.a+' '+t('yrs');
+    $('aeRead').textContent=m.ae+' kcal';
+    $('tgRead').textContent=m.wk.toFixed(2)+' kg';
+    $('tbfRead').textContent=m.tbf.toFixed(1)+' %';
+
+    $('kcalOut').textContent=Math.round(m.target);
+    $('bmrOut').textContent=Math.round(m.bmr);
+    $('modeOut').textContent=m.wk>0?t('modeCut')(Math.round(m.deficit)):t('modeHold');
+
+    ['p','f','c'].forEach(k=>paintKnob(k,m));
+    $('macroSum').textContent=Math.round(macro.p*4+macro.f*9+macro.c*4)+' / '+Math.round(m.target)+' kcal';
+
+
+    const goalW=+$('targetWeight').value;
+    $('gwRead').textContent=goalW.toFixed(1)+' kg';
+    const kgGap=Math.max(m.w-goalW,0);
+    const bfGap=Math.max(m.bf-m.tbf,0);
+    $('kgGapOut').textContent=kgGap.toFixed(1)+' kg';
+    $('fatGapOut').textContent=bfGap.toFixed(1)+' %';
+
+    let weeks=null,cheer;
+    if(m.wk<=0){ $('weeksOut').textContent=t('maintain'); $('weeksOut').classList.add('muted'); cheer=t('cheerHold'); }
+    else if(kgGap<=0.05){ $('weeksOut').textContent=t('reached'); $('weeksOut').classList.add('muted'); cheer=t('cheerDone'); }
+    else{
+      weeks=Math.ceil(kgGap/m.wk);
+      $('weeksOut').textContent=t('weeksVal')(weeks);
+      $('weeksOut').classList.remove('muted');
+      cheer = kgGap<=1.5 ? t('cheerClose')(kgGap.toFixed(1)) : t('cheerGo')(kgGap.toFixed(1),weeks);
+    }
+    $('cheer').textContent=cheer;
+
+    const b=bounds(m);
+    let msg='';
+    if(m.target<b.pLo*4+b.fLo*9) msg=t('tooLow');
+    else if(m.target<m.bmr) msg=t('underBmr')(Math.round(m.bmr));
+    else if(m.tbf<10) msg=t('lowBf');
+    $('alert').textContent=msg;
+    $('alert').classList.toggle('on',!!msg);
+  }
+
+  function calc(){
+    const m=model();
+    macro = manual ? rebalance('p',macro.p,m) : autoSplit(m);
+    render(m);
+  }
+
+  applyLang();
+</script>
+</body>
+</html>
